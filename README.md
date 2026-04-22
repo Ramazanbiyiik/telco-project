@@ -1,5 +1,53 @@
 # Telco Project
 
+Full project details and SQL query explanations are documented in the following PDF:**[Telco_Database_Project_Report.pdf](./Telco_Database_Project_Report.pdf)**
+
+## Technologies Used
+* **Database:** Oracle 21c XE
+* **Infrastructure:** Docker & Docker Compose
+* **Tools:** DBeaver, SQL
+* **Techniques:** Automated Database Seeding, B-Tree & Bitmap Indexing, Complex SQL Joins & Aggregations
+
+## Repository Structure
+* `docker-compose.yml`: Configuration file to quickly spin up the Oracle container.
+* `TABLE_CREATION_SCRIPTS.sql`: DDL scripts containing table structures, constraints (PK/FK), and performance indexes.
+* `SOLUTIONS.sql`: DQL/DML scripts containing the answers to the functional requirements with detailed multi-sentence explanations.
+* `Telco_Database_Project_Report.pdf`: The detailed project report containing all query explanations and execution screenshots.
+
+---
+
+## Indexing Strategy
+
+| Index | Type | Table | Column | Rationale |
+| ----- | --- | ----- | ----- | ------- |
+| `idx_customers_city` | B-Tree | CUSTOMERS | CITY | Speeds up filtering by city. |
+| `idx_customers_signup` | B-Tree | CUSTOMERS | SIGNUP_DATE | Enhances performance for sign-up date sorting/filtering. |
+| `idx_customers_tariff` | B-Tree | CUSTOMERS | TARIFF_ID | Optimizes JOIN operations. |
+| `idx_monthly_stats_cust` | B-Tree | MONTHLY_STATS | CUSTOMER_ID | Performance boost for JOINs via Foreign Key. |
+| `idx_payment_status` | **Bitmap** | MONTHLY_STATS | PAYMENT_STATUS | Ideal for low-cardinality columns (PAID/UNPAID) in Oracle to optimize GROUP BY. |
+
+> **Why Bitmap Index?** Since `PAYMENT_STATUS` contains very few distinct values, a Bitmap Index is significantly more efficient than a B-Tree index in Oracle for aggregate queries and fast filtering.
+
+---
+
+### SQL Solutions Summary
+
+| # | Task | Approach |
+| - | ---- | -------- |
+| 1.1 | Kobiye Destek Subscribers | Filtered by tariff name using a `JOIN`. |
+| 1.2 | Newest Kobiye Subscriber | Ordered by sign-up date desc and fetched first row. |
+| 2.1 | Tariff Distribution | Used `LEFT JOIN` and `GROUP BY` with `COUNT`. |
+| 3.1 | Earliest Sign-ups | Filtered using a `Subquery` finding the `MIN(SIGNUP_DATE)`. |
+| 3.2 | City Distribution of Early Sign-ups | Grouped earlier subscribers by city. |
+| 4.1 | Missing Monthly Records | Used `LEFT JOIN` to find `NULL` entries in usage. |
+| 4.2 | City Distribution of Missing Records | Grouped customers with missing data by city. |
+| 5.1 | High Data Usage (>75%) | Compared usage statistics with limit from tariff table. |
+| 5.2 | Exhausted All Limits | Conditional check across Data, Minutes, and SMS usage. |
+| 6.1 | Unpaid Fees | Filtered for statuses other than 'PAID'. |
+| 6.2 | Payment Status Distribution | Multi-table `JOIN` grouped by tariff and status. |
+
+---
+
 ## How to Set Up Your Repository
 
 **WARNING**: This is a template project. Do not fork this repository.
