@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  oracle-xe:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: i2i_oracle_db
+    environment:
+      - ORACLE_PASSWORD=SysAdmin_i2i_2026!
+      - APP_USER=telco_dev                   
+      - APP_USER_PASSWORD=TelcoApp_2026!    
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./init-scripts:/container-entrypoint-initdb.d
+    restart: always
+
+volumes:
+  oracle-data:
